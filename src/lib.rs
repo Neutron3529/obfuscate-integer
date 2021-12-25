@@ -25,11 +25,13 @@
 //! ```no_run
 //! #![feature(bench_black_box)]
 //! use std::hint::black_box;
+//! #[macro_use] // if you want to import the macro
+//! extern crate obfuscate_integer;
 //! use obfuscate_integer::*;
-//! fn main(){
-//!     let mut round=Oi16::new(0);
-//!     let mut player_hp=Oi32::new(5000000);
-//!     let mut enemy_hp=Oi32::new(10000000);
+//! fn main(){cai!{
+//!     let mut player_hp:Oi32:=500000;
+//!     let mut enemy_hp:Oi32:=1000000;
+//!     let mut round:Oi16:=0;
 //!     let now=std::time::Instant::now();
 //!     loop{
 //!         round+=1;
@@ -39,9 +41,9 @@
 //!         if player_hp<0 {break}
 //!     }
 //!     println!("execute 5000000 loops, cost {:?}",now.elapsed());
-//!     let mut round=0i16;
-//!     let mut player_hp=5000000i32;
-//!     let mut enemy_hp=10000000i32;
+//!     let mut player_hp:Oi32:=500000;
+//!     let mut enemy_hp:Oi32:=1000000;
+//!     let mut round:Oi16:=0;
 //!     let now=std::time::Instant::now();
 //!     loop{
 //!         round+=black_box(1);
@@ -52,10 +54,11 @@
 //!     }
 //!     println!("execute 5000000 loops, cost {:?}",now.elapsed());
 //!     let mut stdin = std::io::stdin();
-//!     let mut player_hp=Oi32::new(500);
-//!     let mut enemy_hp=Oi32::new(1000);
-//!     let mut round=Oi16::new(0);
+//!     let mut player_hp:Oi32:=500000;
+//!     let mut enemy_hp:Oi32:=1000000;
+//!     let mut round:Oi16:=0;
 //!     let mut buffer = String::new();
+//!     } // at least 0.1.0, `cai!` does not support complicated instructions like the following one. it might be solved in future versions.
 //!     if loop{
 //!         round+=1;
 //!         println!("Round {} is comming, player's hp is {} and enemy's hp is {}. Press `Enter` to continue.",&round,&player_hp,&enemy_hp);
@@ -80,50 +83,8 @@
 #![feature(specialization)]
 #![feature(box_syntax)]
 use std::ops::*;
-/// this trait is mainly for the incoming CustomAssign stmt `a~b` implemented by my incoming marco cai!
-pub trait CustomAssign<Rhs=Self>{ // bind to a~b
-    fn custom_assign(&mut self, rhs:Rhs); // a~b means a.custom_assign(b)
-}
-/// this trait is mainly for the incoming CustomInitialize stmt `let a:Type :=b` implemented by my incoming marco cai!
-pub trait CustomInitialize<Rhs=Self>{ // bind to a:=b
-    fn custom_initialize(rhs:Rhs)->Self; // a:=b means a=<type of a>::custom_initialize(rhs);
-}
-impl<T> CustomAssign<T> for T{
-    #[inline(always)]
-    default fn custom_assign(&mut self, rhs:T){
-        *self=rhs
-    }
-}
-impl<T:Copy> CustomAssign<&T> for T{
-    #[inline(always)]
-    default fn custom_assign(&mut self, rhs:&T){
-        *self=*rhs
-    }
-}
-impl<'a,T:CustomAssign<&'a T>> CustomAssign<&'a mut T> for T{
-    #[inline(always)]
-    default fn custom_assign(&mut self, rhs:&'a mut T){
-        self.custom_assign(rhs as &T)
-    }
-}
-impl<T> CustomInitialize<T> for T{
-    #[inline(always)]
-    default fn custom_initialize(rhs:T)->Self{
-        rhs
-    }
-}
-impl<T:Copy> CustomInitialize<&T> for T{
-    #[inline(always)]
-    default fn custom_initialize(rhs:&T)->Self{
-        *rhs
-    }
-}
-impl<'a,T:CustomInitialize<&'a T>> CustomInitialize<&'a mut T> for T{
-    #[inline(always)]
-    default fn custom_initialize(rhs:&'a mut T)->Self{
-        Self::custom_initialize(rhs as &T)
-    }
-}
+include!("custom_ai.rs");
+pub use crate::custom_ops::{CustomInitialize,CustomAssign};
 
 macro_rules! Oint_impl {
     ($SelfT:ident,$SelfE:ident,$ActualT:ty)=>{
@@ -411,6 +372,40 @@ mod tests {
     fn it_works() {
         assert!(&Ou128::from_raw((1,Eu128::SS(1,2))) + Ou8::new(4).value() as u128==7);
         assert!(0u8-Ou8::new(4).value()>0);
+        cai!{
+             let _a=1;               // a normal statement
+             let mut a:i32 :=0;      // Custom Initialize (let mut a:i32 =CustomInitialize::custom_initialize())
+             a+=1;                   // stmt
+             assert_eq!(1,a);
+             for i in 0i32..1{
+                 let j:i32 :=3;
+                 assert_eq!(2,j-a+i)
+             }
+             a~2;                    // Custom Assign (bind to `~`)
+             if a==2{
+                 let j:i32 :=1;
+                 assert_eq!(3,a+j)
+             }
+             a.custom_assign(6i32);  // expr with no ending semicolon
+             if a==1i32{
+             }else{
+                 let j:i32 :=2;
+                 assert_eq!(4,a-j)
+             }
+             while a!=1{
+                 a:=1;               // := could be used without let clause.
+                 assert_eq!(a,1)
+             }
+             loop{
+                 assert_eq!(6,a+5);
+                 break {
+                     let b:i32 := 7 ;
+                     assert_eq!(7,b) ;
+                     b
+                 }
+             }
+             assert_eq!(8,a+7)
+         }
     }
 }
 /*fn main(){
