@@ -1,0 +1,19 @@
+[package]
+name = "obfuscate-integer"
+version = "0.1.0"
+edition = "2021"
+authors = ["Neutron3529 <qweytr_1@163.com>"]
+description = "This is a crate which may stop most Cheat Engine (and other variants) program scanning for the relative address, and thus stop further modification."
+license-file = "LICENSE"
+keywords = ["gamedev", "obfuscate"]
+categories = ["data-structures", "game-development"]
+
+[profile.dev]
+overflow-checks = false     # Disable integer overflow checks.
+[profile.test]
+overflow-checks = false     # Disable integer overflow checks.
+
+[lib]
+edition = "2021"
+
+[dependencies]
