@@ -396,51 +396,52 @@ mod tests {
         assert!(&Ou128::from_raw((1,Eu128::SS(1,2))) + Ou8::new(4).value() as u128==7);
         assert!(0u8-Ou8::new(4).value()>0);
         assert_eq!({cai!{
-             let _a=1;               // a normal statement
-             let mut a:i32 :=0;      // Custom Initialize (let mut a:i32 =CustomInitialize::custom_initialize())
-             a+=1;                   // stmt
-             assert_eq!(1,a);
-             for i in 0i32..1{
-                 let j:i32 :=3;
-                 assert_eq!(2,j-a+i)
-             }
-             a~2;                    // Custom Assign (bind to `~`)
-             if a==2{
-                 let j:i32 :=1;
-                 assert_eq!(3,a+j)
-             }
-             a.custom_assign(6i32);  // expr with no ending semicolon
-             if a==1i32{
-             }else{
-                 let j:i32 :=2;
-                 assert_eq!(4,a-j)
-             }
-             while a!=1{
-                 a:=1;               // := could be used without let clause.
-                 assert_eq!(a,1)
-             }
-             loop{
-                 assert_eq!(6,a+5);
-                 break {
-                     let b:i32 := 7 ;
-                     assert_eq!(7,b) ;
-                     b
-                 }
-             }
-             assert_eq!(8,a+7);
-             3 //if you really want cai! return something to an expression, using {cai!{...}}
+            let _a=1;               // a normal statement
+            let mut a:i32 :=0;      // Custom Initialize (let mut a:i32 =CustomInitialize::custom_initialize())
+            a+=1;                   // stmt
+            assert_eq!(1,a);
+            for i in 0i32..1{
+                let j:i32 :=3;
+                assert_eq!(2,j-a+i)
+            }
+            a~2;                    // Custom Assign (bind to `~`)
+            if a==2{
+                let j:i32 :=1;
+                assert_eq!(3,a+j)
+            }
+            a.custom_assign(6i32);  // expr with no ending semicolon
+            if a==1i32{
+            }else{
+                let j:i32 :=2;
+                assert_eq!(4,a-j)
+            }
+            while a!=1{
+                a:=1;               // := could be used without let clause.
+                assert_eq!(a,1)
+            }
+            loop{
+                assert_eq!(6,a+5);
+                break {
+                    let b:i32 := 7 ;
+                    assert_eq!(7,b) ;
+                    b
+                }
+            }
+            assert_eq!(8,a+7);
+            3 //if you really want cai! return something to an expression, using {cai!{...}}
                // fortunately, fn _()->_ already have the form fn _()->_  {cai!{...}}
-         }},3)
+        }},3);
     }
 }
-/*fn main(){
+//*
+fn main(){
     let mut a=Oi32::new(0);
     let mut b=Oi32::new_cssc(0);
     for _ in 0..100{
-        println!("{} {}:{:?}",a.value(),b.value(),a);
+        eprintln!("{} {}:{:?}",a.value(),b.value(),a);
         a+=1;
         b+=a.clone();
         b-=&a;
         b.assign(&b+&a)
     }
-}*/
+}// */
