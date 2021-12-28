@@ -433,7 +433,7 @@ mod tests {
         }},3);
     }
 }
-//*
+/*
 fn main(){
     let mut a=Oi32::new(0);
     let mut b=Oi32::new_cssc(0);
